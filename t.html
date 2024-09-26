@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 50px; background: linear-gradient(to right, #e0f7fa, #ffffff); }
+        h2 { color: #00796b; font-size: 40px; }
+        input, button { font-size: 24px; padding: 15px; border-radius: 25px; border: 2px solid #00796b; margin: 10px 0; }
+        button { background-color: #00796b; color: white; cursor: pointer; }
+        button:hover { background-color: #004d40; }
+        #loading { display: none; }
+        #weather-info { margin-top: 30px; padding: 20px; border: 2px solid #00796b; border-radius: 10px; background-color: white; }
+    </style>
+</head>
+<body>
+
+<h2>SOOBY WEATHER</h2>
+<input type="text" id="location-input" placeholder="Enter city, country">
+<button onclick="searchWeather()">Search</button>
+<div id="loading">Loading...</div>
+<div id="weather-info"></div>
+
+<script>
+const apiKey = 'f3e93f9ddcf28e1e66b6a8117bd1f123';
+
+function fetchWeather(url) {
+    document.getElementById("loading").style.display = "block";
+    fetch(url)
+        .then(response => {
+            document.getElementById("loading").style.display = "none";
+            if (!response.ok) throw new Error('Error fetching weather data.');
+            return response.json();
+        })
+        .then(data => displayWeather(data))
+        .catch(err => displayMessage(err.message));
+}
+
+function searchWeather() {
+    const [city, country] = document.getElementById("location-input").value.split(',').map(s => s.trim());
+    if (!city || !country) return displayMessage("Please enter both city and country.");
+    fetchWeather(`https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${apiKey}`);
+}
+
+function displayWeather(data) {
+    const tempC = (data.main.temp - 273.15).toFixed(2);
+    const humidity = data.main.humidity;
+    const windSpeed = data.wind.speed;
+    document.getElementById("weather-info").innerHTML = `Weather in ${data.name}, ${data.sys.country}: <br> Temperature: ${tempC}°C <br> Humidity: ${humidity}% <br> Wind Speed: ${windSpeed} m/s`;
+}
+
+function displayMessage(msg) {
+    document.getElementById("weather-info").innerHTML = msg;
+}
+</script>
+</body>
+</html>
